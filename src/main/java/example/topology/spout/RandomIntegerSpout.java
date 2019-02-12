@@ -13,10 +13,6 @@
 //  limitations under the License.
 package example.topology.spout;
 
-import java.util.Map;
-import java.util.Random;
-import java.util.logging.Logger;
-
 import com.twitter.heron.api.spout.BaseRichSpout;
 import com.twitter.heron.api.spout.SpoutOutputCollector;
 import com.twitter.heron.api.topology.OutputFieldsDeclarer;
@@ -25,46 +21,50 @@ import com.twitter.heron.api.tuple.Fields;
 import com.twitter.heron.api.tuple.Values;
 import com.twitter.heron.api.utils.Utils;
 
+import java.util.Map;
+import java.util.Random;
+import java.util.logging.Logger;
+
 /**
  * Emits a random integer and a timestamp value (offset by one day),
  * every 100 ms. The ts field can be used in tuple time based windowing.
  */
 public class RandomIntegerSpout extends BaseRichSpout {
-  private static final Logger LOG = Logger.getLogger(RandomIntegerSpout.class.getName());
-  private static final long serialVersionUID = 5454291010750852782L;
-  private SpoutOutputCollector collector;
-  private Random rand;
-  private long msgId = 0;
+    private static final Logger LOG = Logger.getLogger(RandomIntegerSpout.class.getName());
+    private static final long serialVersionUID = 5454291010750852782L;
+    private SpoutOutputCollector collector;
+    private Random rand;
+    private long msgId = 0;
 
-  @Override
-  public void declareOutputFields(OutputFieldsDeclarer declarer) {
-    declarer.declare(new Fields("value", "ts", "msgid"));
-  }
+    @Override
+    public void declareOutputFields(OutputFieldsDeclarer declarer) {
+        declarer.declare(new Fields("value", "ts", "msgid"));
+    }
 
-  @Override
-  @SuppressWarnings("HiddenField")
-  public void open(Map<String, Object> conf, TopologyContext context, SpoutOutputCollector
-      collector) {
-    this.collector = collector;
-    this.rand = new Random();
-  }
+    @Override
+    @SuppressWarnings("HiddenField")
+    public void open(Map<String, Object> conf, TopologyContext context, SpoutOutputCollector
+            collector) {
+        this.collector = collector;
+        this.rand = new Random();
+    }
 
-  @Override
-  public void nextTuple() {
-    Utils.sleep(100);
-    collector.emit(new Values(rand.nextInt(1000),
-        System.currentTimeMillis() - (24 * 60 * 60 * 1000), ++msgId), msgId);
-  }
+    @Override
+    public void nextTuple() {
+        Utils.sleep(100);
+        collector.emit(new Values(rand.nextInt(1000),
+                System.currentTimeMillis() - (24 * 60 * 60 * 1000), ++msgId), msgId);
+    }
 
-  @Override
-  @SuppressWarnings("HiddenField")
-  public void ack(Object msgId) {
-    LOG.fine("Got ACK for msgId : " + msgId);
-  }
+    @Override
+    @SuppressWarnings("HiddenField")
+    public void ack(Object msgId) {
+        LOG.fine("Got ACK for msgId : " + msgId);
+    }
 
-  @Override
-  @SuppressWarnings("HiddenField")
-  public void fail(Object msgId) {
-    LOG.fine("Got FAIL for msgId : " + msgId);
-  }
+    @Override
+    @SuppressWarnings("HiddenField")
+    public void fail(Object msgId) {
+        LOG.fine("Got FAIL for msgId : " + msgId);
+    }
 }

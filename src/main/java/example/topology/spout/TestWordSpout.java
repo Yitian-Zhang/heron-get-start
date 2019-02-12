@@ -14,10 +14,6 @@
 
 package example.topology.spout;
 
-import java.time.Duration;
-import java.util.Map;
-import java.util.Random;
-
 import com.twitter.heron.api.spout.BaseRichSpout;
 import com.twitter.heron.api.spout.SpoutOutputCollector;
 import com.twitter.heron.api.topology.OutputFieldsDeclarer;
@@ -26,50 +22,54 @@ import com.twitter.heron.api.tuple.Fields;
 import com.twitter.heron.api.tuple.Values;
 import com.twitter.heron.common.basics.SysUtils;
 
+import java.time.Duration;
+import java.util.Map;
+import java.util.Random;
+
 public class TestWordSpout extends BaseRichSpout {
 
-  private static final long serialVersionUID = -3217886193225455451L;
-  private SpoutOutputCollector collector;
-  private String[] words;
-  private Random rand;
-  private final Duration throttleDuration;
+    private static final long serialVersionUID = -3217886193225455451L;
+    private final Duration throttleDuration;
+    private SpoutOutputCollector collector;
+    private String[] words;
+    private Random rand;
 
-  public TestWordSpout() {
-    this(Duration.ZERO);
-  }
-
-  public TestWordSpout(Duration throttleDuration) {
-    this.throttleDuration = throttleDuration;
-  }
-
-  @SuppressWarnings("rawtypes")
-  public void open(
-      Map conf,
-      TopologyContext context,
-      SpoutOutputCollector acollector) {
-    collector = acollector;
-    words = new String[]{"nathan", "mike", "jackson", "golda", "bertels"};
-    rand = new Random();
-  }
-
-  public void close() {
-  }
-
-  public void nextTuple() {
-    final String word = words[rand.nextInt(words.length)];
-    collector.emit(new Values(word));
-    if (!throttleDuration.isZero()) {
-      SysUtils.sleep(throttleDuration); // sleep to throttle back cpu usage
+    public TestWordSpout() {
+        this(Duration.ZERO);
     }
-  }
 
-  public void ack(Object msgId) {
-  }
+    public TestWordSpout(Duration throttleDuration) {
+        this.throttleDuration = throttleDuration;
+    }
 
-  public void fail(Object msgId) {
-  }
+    @SuppressWarnings("rawtypes")
+    public void open(
+            Map conf,
+            TopologyContext context,
+            SpoutOutputCollector acollector) {
+        collector = acollector;
+        words = new String[]{"nathan", "mike", "jackson", "golda", "bertels"};
+        rand = new Random();
+    }
 
-  public void declareOutputFields(OutputFieldsDeclarer declarer) {
-    declarer.declare(new Fields("word"));
-  }
+    public void close() {
+    }
+
+    public void nextTuple() {
+        final String word = words[rand.nextInt(words.length)];
+        collector.emit(new Values(word));
+        if (!throttleDuration.isZero()) {
+            SysUtils.sleep(throttleDuration); // sleep to throttle back cpu usage
+        }
+    }
+
+    public void ack(Object msgId) {
+    }
+
+    public void fail(Object msgId) {
+    }
+
+    public void declareOutputFields(OutputFieldsDeclarer declarer) {
+        declarer.declare(new Fields("word"));
+    }
 }
